@@ -19,7 +19,7 @@
 </div>
 
 <h1 align="center">  AlwaysLC_Radar </h1>
-<h3 align="center"> 长安大学 VGD 战队 · 雷达组核心框架 (Monorepo) </h3>
+<h3 align="center"> 长安大学 VGD 战队 · 雷达组核心框架与雷达系统学习路径 (Monorepo) </h3>
 
 <p align="center">
   <strong>「  VGD 雷达组队内学习：包括雷达站机器人识别，无人机反制，无线电攻防 」</strong>
