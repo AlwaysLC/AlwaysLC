@@ -1,154 +1,290 @@
 # 长安大学 雷达组 刘崇尘 个人仓库所有
-## 修改中
 
 
 <div align="center">
   <table border="0">
     <tr>
       <td align="center" valign="middle">
-        <img src="./docs/chu.png" alt="VGD Team Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <img src="./docs/chu.png" alt="CHD Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
       </td>
       <td align="center" valign="middle">
-        <img src="./docs/robomaster.png" alt="CHD Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <img src="./docs/robomaster.png" alt="RoboMaster Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
       </td>
       <td align="center" valign="middle">
-        <img src="./docs/vgd.png" alt="RoboMaster Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <img src="./docs/vgd.png" alt="VGD Team Logo" width="100%" style="max-width: 300px; border-radius: 7px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
       </td>
     </tr>
   </table>
 </div>
 
 <h1 align="center">  AlwaysLC_Radar </h1>
-<h3 align="center"> 长安大学 VGD 战队 · 雷达组核心框架与雷达系统学习路径 (Monorepo) </h3>
+<h3 align="center"> 长安大学 VGD 战队 · RM2026 雷达站三大子系统 (Monorepo) </h3>
 
 <p align="center">
-  <strong>「  VGD 雷达组队内学习：包括雷达站机器人识别，无人机反制，无线电攻防 」</strong>
+  <strong>「 目标识别 · 无人机反制 · 无线电攻防 」</strong>
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Season-RM2026-FF5722.svg?style=for-the-badge" alt="RM2026">
   <img src="https://img.shields.io/badge/Author-AlwaysLC_(CHD_Radar)-FF8C00.svg?style=for-the-badge" alt="Author">
-  <img src="https://img.shields.io/badge/Purpose-VGD_Internal_Learning-4CAF50.svg?style=for-the-badge" alt="Purpose">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Hardware-Pluto_SDR_|_HikCamera-00979D.svg?style=for-the-badge" alt="Hardware">
+  <img src="https://img.shields.io/badge/Hardware-Pluto_SDR_|_HikCamera_×2|_Gimbal-00979D.svg?style=for-the-badge" alt="Hardware">
 </p>
 
 ---
 
-## 📖 仓库导读 (Repository Overview)
+## 雷达站系统总览
 
-本项目由 **长安大学雷达组成员 刘崇尘** 构建与维护，核心目的在于为 **VGD 战队雷达组** 提供一套标准化、模块化的全栈视觉与雷达综合控制学习框架。
+RM2026 赛季雷达站由三个独立子系统组成，分别运行在三个终端中：
 
-本项目采用 **Monorepo（单体仓库）** 架构进行集中管理。
-方便队内新老成员快速克隆、联合调试与技术迭代。
+```
+┌─────────────────────────────────────────────────────────┐
+│                     RM2026 雷达站                         │
+├───────────────┬──────────────────┬──────────────────────┤
+│  识别系统      │   无线电系统       │   无人机反制系统       │
+│  HKR_RACE     │ PinyRadio-sim     │ LaserTracking        │
+│  (终端1)       │  (终端2)           │  (终端3)              │
+├───────────────┼──────────────────┼──────────────────────┤
+│ • 装甲板检测   │ • GFSK 解调       │ • 两阶段检测           │
+│ • 车辆检测     │ • 密钥破解         │ • 云台追踪             │
+│ • 裁判系统通信 │ • 信息波/干扰波    │ • 激光瞄准             │
+│ • 场地定位     │ • ZMQ 数据桥接     │ • 串口控制             │
+│ • 密码学对抗   │                   │                       │
+├───────────────┼──────────────────┼──────────────────────┤
+│ 相机: DA8565947│ 硬件: PlutoSDR   │ 相机: 00F29190527     │
+│ 模型: YOLO+CNN│ 频率: 红方/蓝方    │ 模型: drone + module  │
+└───────────────┴──────────────────┴──────────────────────┘
+```
 
-### 🧩 核心模块矩阵
-
-| 模块分类 | 子项目 / 核心功能 | 核心技术栈 | 当前状态 |
-| :--- | :--- | :--- | :---: |
-| 👁️ **视觉系统** | 装甲板检测与数字分类网络 | `YOLO`, `CNN`, `PyTorch` | 🟢 稳定 |
-| 📡 **雷达系统** | Pluto SDR 信号收发与波形解析 | `SDR`, `PyQt UI可视化` | 🟡 迭代中 |
-| 🔌 **硬件驱动** | 海康工业相机底层控制 | `MvImport`, `C/C++` | 🟢 稳定 |
-| 🎯 **控制算法** | 目标连续追踪与二维云台预测逻辑 | `ByteTrack`, `PID 控制` | 🟡 迭代中 |
-| 🛡️ **底层通信** | 裁判系统数据交互与 CRC 校验 | `串口通信`, `Python struct`| 🟢 稳定 |
+| 子系统 | 路径 | 语言/框架 | 核心功能 |
+|:---|:---|:---|:---|
+| 识别系统 | `~/HKR_RACE` | Python, PyTorch, YOLO, PyQt5 | 机器人识别、裁判系统通信、密码学对抗、比赛数据面板 |
+| 无线电系统 | `~/PinyRadio-simulation` | Python, GNU Radio, ZMQ | GFSK 解调、密钥提取、干扰波发送、监控 UI |
+| 无人机反制 | `~/LaserTracking-2026-main` | C++17, TensorRT, CUDA, OpenCV | 两阶段检测、云台控制、激光打击、串口协议 |
 
 ---
 
-## 📸 综合运行展示 (Showcase)
+## 快速启动
+
+详见 `~/RADAR_启动命令.txt`，一键复制粘贴即可。
+
+### 终端1：识别系统 (HKR_RACE)
+
+```bash
+start_conda
+conda activate HKR
+cd ~/HKR_RACE
+export QT_QPA_PLATFORM_PLUGIN_PATH=/home/vgd/anaconda3/envs/HKR/lib/python3.10/site-packages/PyQt5/Qt5/plugins
+python main.py --config config/params.yaml --device_config config/device.yaml
+```
+
+### 终端2：无线电系统 (PinyRadio-simulation)
+
+```bash
+cd ~/PinyRadio-simulation
+bash start_radio.sh              # 默认: 干扰波(密钥), ZMQ→5556
+bash start_radio.sh both         # 双模式: 广播+干扰
+FACTION=blue bash start_radio.sh # 蓝方
+```
+
+### 终端3：无人机反制系统 (LaserTracking)
+
+```bash
+cd ~/LaserTracking-2026-main
+bash run.sh                      # 真实云台
+bash run.sh --test               # 测试模式 (虚拟串口)
+bash run.sh --no-show            # 无GUI
+```
+
+---
+
+## 子系统详解
+
+### 1. 识别系统 (HKR_RACE)
+
+**功能**：
+- 装甲板检测与数字识别（YOLO 两阶段 + MobileNet 分类器）
+- 车辆检测与追踪（ByteTrack + CascadeMatchTracker）
+- 裁判系统串口通信（UART 115200, SOF=0xA5, CRC8/CRC16）
+- 密码学对抗（密钥猜测 RM2026/2026RM → 无线电破解密钥验证 → 己方密钥更新）
+- 双倍易伤触发（DV 机制，飞镖目标 + 雷达指令）
+- 近敌告警（己方机器人 3m 内有敌方时下发 0x0301/0x0225）
+- 场地坐标计算（射线投影 + PnP）
+
+**UI 界面**：
+- 紧凑状态栏：裁判系统 ● / 相机 ● / 无线电 ● / 阵营 / FPS / 密钥 / 加密等级 / DV 次数
+- 比赛数据面板 CompetitionPanel：通信链路、密码学对抗、双倍易伤、标记+飞镖、无线电接收
+
+**配置文件**：
+- `config/params.yaml` — 模型路径、检测阈值、裁判系统串口、相机内参
+- `config/device.yaml` — 相机序列号 DA8565947
+
+### 2. 无线电系统 (PinyRadio-simulation)
+
+**运行逻辑**（红方视角）：
+- 己方基座发射源包含**对方**信息 → 收听红方广播源 433.200 MHz + 红方干扰源
+- GFSK 解调（SPS=52, SR=1MHz, BT=0.35）→ 提取 0x0A01~0x0A06 数据帧
+- 0x0A06 密钥帧 → ZMQ PUB → HKR_RACE 的 radio_bridge 接收
+- HKR_RACE 通过裁判系统 0x0121 指令验证密钥（password_cmd=2）或更新己方密钥（password_cmd=1）
+
+**数据链路**：
+
+```
+PlutoSDR → GFSK解调 → 帧解析 → ZMQ PUB (tcp://*:5556)
+                                      ↓
+                              HKR_RACE RadioBridge (ZMQ SUB)
+                                      ↓
+                              referee_comm._process_radio_key()
+                                      ↓
+                              裁判系统 0x0121 指令
+```
+
+**关键参数**：
+| 参数 | 红方广播源 | 红方一级干扰源 |
+|:---|:---|:---|
+| 中心频点 | 433.200 MHz | 432.200 MHz |
+| 带宽 | 0.54 MHz | 0.94 MHz |
+| 功率 | -60 dBm | -10 dBm |
+| Access Code | `0x2F6F4C74B914492E` (广播) | `0x16E8D377151C712D` (干扰) |
+
+### 3. 无人机反制系统 (LaserTracking)
+
+**两阶段检测流水线**（依据规则 5.6.3）：
+
+```
+相机 (1440×1080, 50fps)
+    │
+    ▼
+Stage 1: best_fp16.engine(drone)  全图 GPU 推理
+    │  conf=0.15, 找到无人机大致位置
+    │
+    ▼
+裁剪: 以无人机 bbox 为中心, 各边扩展 50%
+    │
+    ▼
+Stage 2: best_fp16(right).engine  局部 CPU 推理
+    │  conf=0.3, 精确找到激光监测模块位置
+    │  label = "module"
+    │
+    ▼
+像素 → 角度 (P 控制器 + 速度前馈 + 阻尼)
+    │
+    ▼
+串口 → 云台 → 激光连续照射 → P 值累加 → 锁定对方发射机构
+```
+
+**规则要点**（5.6.3 空中机器人被雷达反制）：
+| 参数 | 说明 |
+|:---|:---|
+| 被瞄准进度 P | 0→100, 中断即衰减 0.5/s |
+| P 累加公式 | 第 n 个 0.1s: P = P + n |
+| 首次锁定 P0=50 | ~1.0s 连续照射 |
+| 二次锁定 P0=100 | ~1.4s 连续照射 |
+| 三次锁定 P0=100 | 模块面积缩为 1/5, 不发光 |
+| 锁定效果 | 对方发射机构锁定 45s |
+| 单局上限 | 3 次 |
+
+**GUI 界面**：
+- 顶部半透明状态栏：FPS / 推理耗时 / 追踪目标类型 / 置信度 / 像素坐标
+- 红色十字：激光 boresight 指向
+- 绿色矩形框 + 圆心：检测结果 + 标签 (drone / module)
+- 左下角：CMD (控制指令) / FB (云台反馈) / LOST (丢帧)
+- 下方 4 个时序图：pitch/yaw 指令、像素误差、角速度、云台反馈
+
+**串口协议**（22 字节）：
+```
+0xCD + pitch(f32) + yaw(f32) + pitch_rate(f32) + yaw_rate(f32) + timestamp(u32) + 0xDC
+```
+
+---
+
+## 仿真测试
+
+无需真实硬件即可验证完整链路。
+
+```bash
+# 终端1: 创建虚拟串口
+socat -d -d pty,raw,echo=0,mode=666 pty,raw,echo=0,mode=666 &
+# 记下输出: /dev/pts/3 和 /dev/pts/4
+
+# 终端2: 裁判系统模拟器 → HKR_RACE
+python3 ~/HKR_RACE/test_referee_sim.py /dev/pts/4 --faction red
+
+# 终端3: 无线电数据模拟器 (ZMQ)
+python3 ~/PinyRadio-simulation/test_radio_sim.py
+
+# 终端4: HKR_RACE (裁判系统端口改为 /dev/pts/3)
+conda activate HKR && cd ~/HKR_RACE && python main.py ...
+
+# 无人机反制测试
+cd ~/LaserTracking-2026-main && bash run.sh --test
+```
+
+预期：裁判系统 ● | 无线电 ● | 阵营红方 | 加密 Lv1 | DV 2/2 | 比赛数据面板计数持续增长
+
+---
+
+## 硬件配置
+
+| 设备 | 用途 | 序列号/标识 |
+|:---|:---|:---|
+| 海康相机 ×2 | 识别 + 反制 | DA8565947 (识别) / 00F29190527 (反制) |
+| PlutoSDR | 无线电收发 | USB 直连 |
+| 云台 (两轴) | 激光指向 | /dev/ttyACM0, 115200-921600bps |
+| 裁判系统 CH341 | 串口通信 | /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0 |
+| 激光发射器 | 打击模块 | 由下位机控制通断 |
+
+---
+
+## 目录结构
+
+```
+~/
+├── HKR_RACE/                       # 识别系统
+│   ├── config/                     # params.yaml, device.yaml, botsort.yaml
+│   ├── driver/                     # hik_camera/, referee/ (串口+无线电桥接)
+│   ├── interface/                  # PyQt5 UI (CompetitionPanel)
+│   ├── model/                      # YOLO 检测 + MobileNet 分类
+│   ├── tracker/                    # CascadeMatchTracker
+│   ├── transform/                  # 场地投影 / 射线追踪
+│   ├── field/                      # 场地 .ply 模型 + 关键点
+│   ├── main.py                     # 入口
+│   └── test_referee_sim.py         # 裁判系统模拟器
+│
+├── PinyRadio-simulation/           # 无线电系统
+│   ├── start_radio.sh              # 一键启动
+│   ├── rx_competition.py           # 接收主程序
+│   ├── radio_monitor.py            # 监控 UI
+│   ├── test_radio_sim.py           # ZMQ 模拟器
+│   ├── test_loopback.py            # 闭环 GFSK 验证
+│   └── gr-gr_roboframe/            # GNU Radio OOT 模块 (GFSK 解调)
+│
+├── LaserTracking-2026-main/        # 无人机反制系统
+│   ├── run.sh                      # 一键启动
+│   ├── scripts/gimbal_simulator.py # 云台模拟器
+│   └── src/
+│       ├── detector/               # 两阶段检测 (TRT)
+│       ├── control/                # 云台控制 (P+FF+D)
+│       ├── hik_camera/             # 海康相机驱动 (GPU 去马赛克)
+│       └── gimbal_serial/          # 云台串口协议
+│
+└── RADAR_启动命令.txt              # 三系统启动命令速查
+```
+
+---
+
+## 队内开源许可与版权声明
 
 <div align="center">
-  <table>
-    <tr>
-      <td align="center" valign="top">
-        <img src="./docs/vision_demo.png" alt="视觉识别演示" width="300" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <br>
-        <p align="center"><strong>图1: 视觉算法处理流</strong></p>
-      </td>
-      
-      <td align="center" valign="top">
-        <img src="./docs/radar_ui.png" alt="雷达UI演示" width="300" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <br>
-        <p align="center"><strong>图2: 雷达动态可视化 UI</strong></p>
-      </td>
-      
-      <td align="center" valign="top">
-        <img src="./docs/hardware_status.png" alt="硬件运行演示" width="300" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <br>
-        <p align="center"><strong>图3: 硬件系统运行状态</strong></p>
-      </td>
-    </tr>
-  </table>
+  <h3>© 2026 长安大学 VGD 战队雷达组 刘崇尘. 保留所有权利.</h3>
 </div>
 
----
+本项目为 **长安大学 VGD 战队雷达组** 内部所有。
 
-## 📂 全局目录结构 (Directory Structure)
+**✅ 鼓励：**
+1. 队内学习与研究：欢迎视觉组、电控组成员克隆代码，研究 SDR 解算、云台控制及裁判系统通信实现
+2. 优化与 PR：发现 Bug 或有更好的算法，欢迎提交 Pull Request
 
-```text
-HKR_RACE/
-├── config/              # ⚙️ 统一配置中心 (相机参数、模型路径、串口号等 yaml 文件)
-├── driver/              # 🕹️ 硬件驱动层 (海康相机、裁判系统底层封装)
-├── interface/           # 💻 交互展示层 (实时雷达波形动态展示 UI)
-├── model/               # 🧠 算法模型层 (目标检测、分类器及推理引擎)
-├── tracker/             # 🎯 运动学追踪 (装甲板连续帧匹配与预测算法)
-├── utils/               # 🛠️ 通用工具箱 (日志记录、CRC 校验算法等)
-├── docs/                # 📁 静态资源库 (存放 Markdown 文档所需的本地图片)
-├── main.py              # 🚀 调度入口 (多进程/多线程主程序)
-└── requirements.txt     # 📦 全局环境依赖清单
-```
-
----
-
-## 🚀 快速部署指南 (Quick Start)
-
-请队内成员严格按照以下步骤在工控机或本地开发环境中部署本系统。
-
-### 1. 获取完整代码库
-
-```bash
-# 克隆主分支代码到本地
-git clone [https://github.com/AlwaysLC/HKR_RACE.git](https://github.com/AlwaysLC/HKR_RACE.git)
-cd HKR_RACE
-```
-
-### 2. 配置环境依赖
-
-强烈建议使用 `Conda` 创建隔离的虚拟环境，防止与其他队员的环境冲突：
-
-```bash
-# 创建并激活 Python 3.10 虚拟环境
-conda create -n vgd_radar python=3.10 -y
-conda activate vgd_radar
-
-# 安装核心依赖
-pip install -r requirements.txt
-```
-
-> **⚠️ 硬件驱动额外提示**：
-> 运行前，请务必确保测试平台已正确配置 **海康威视 MVS 客户端** 以及 **Pluto SDR USB 驱动**。缺少底层 C/C++ 动态链接库会导致程序闪退。
-
-### 3. 一键启动
-
-硬件连接无误后，直接运行主脚本拉起所有进程：
-
-```bash
-python main.py
-```
-
----
-
-## ⚖️ 队内开源许可与版权声明 (Internal License)
-
-<div align="center">
-  <h3>© 2026 长安大学VGD战队雷达组 刘崇尘. 保留所有权利.</h3>
-</div>
-
-本项目为 **长安大学 VGD 战队雷达组** 内部所有，旨在为队内成员提供学习、研究与赛前调试的基础。
-
-**✅ 鼓励的行为：**
-1. **队内学习与研究**：欢迎且强烈建议队内视觉组成员、电控组成员克隆本代码，研究雷达 SDR 解算逻辑、二维云台控制以及裁判系统底层通信的实现细节。
-2. **优化与 PR**：如果在测试中发现了 Bug，或者有更高效的滤波/跟踪算法，非常欢迎在本地修改后向主分支提交 Pull Request (PR)。
-
-**❌ 严禁的行为 ：**
-1. **代码外泄**：严禁以任何形式将本仓库的核心源码、包含敏感参数的配置文件外传给其他高校战队或非本队人员。
-2. **商业化与私用参赛**：未经作者及 VGD 战队的明确同意，严禁将本代码库用于非 VGD 名义的任何商业盈利或外包赛事项目。
-
+**❌ 严禁：**
+1. 代码外泄：严禁将核心源码、含敏感参数的配置文件外传给其他高校战队
+2. 商业化与私用：未经作者及 VGD 战队同意，严禁用于非 VGD 名义的比赛或商业项目
